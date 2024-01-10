@@ -1,0 +1,48 @@
+version: "3.7"
+
+services:
+  apisix:
+    container_name: apisix
+    build: ./apisix
+    networks:
+      - intranet
+    ports:
+      - "9180:9180"
+      - "9080:9080"
+      - "9091:9091"
+      - "9433:9433"
+      - "9092:9092"
+    depends_on:
+      - etcd
+    restart: always
+
+  etcd:
+    container_name: etcd
+    image: bitnami/etcd:3.5.10
+    environment:
+      ALLOW_NONE_AUTHENTICATION: "yes"
+      ETCD_ADVERTISE_CLIENT_URLS: "http://etcd:2379"
+      ETCD_LISTEN_CLIENT_URLS: "http://0.0.0.0:2379"
+    volumes:
+      - etcd-data:/bitnami/etcd
+    networks:
+      - intranet
+    ports:
+      - "2379:2379"
+    restart: always
+
+  prometheus:
+    container_name: prometheus
+    build: ./prometheus
+    networks:
+      - intranet
+    ports:
+      - "9090:9090"
+    restart: always
+
+volumes:
+  etcd-data:
+
+networks:
+  intranet:
+    driver: bridge

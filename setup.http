@@ -1,0 +1,102 @@
+### List Upstreams
+GET {{$dotenv APISIX_ADMIN_URL}}/apisix/admin/upstreams HTTP/1.1
+X-Api-Key: {{$dotenv APISIX_ADMIN_API_KEY}}
+
+
+
+### Create an Upstream
+PUT {{$dotenv APISIX_ADMIN_URL}}/apisix/admin/upstreams/1 HTTP/1.1
+X-Api-Key: {{$dotenv APISIX_ADMIN_API_KEY}}
+Content-Type: application/json
+
+{
+  "type": "roundrobin",
+  "nodes": {
+    "httpbin.org:80": 1
+  }
+}
+
+
+
+
+### Create a Route
+PUT {{$dotenv APISIX_ADMIN_URL}}/apisix/admin/routes/1 HTTP/1.1
+X-Api-Key: {{$dotenv APISIX_ADMIN_API_KEY}}
+Content-Type: application/json
+
+{
+  "methods": ["GET"],
+  "host": "example.com",
+  "uri": "/anything/*",
+  "upstream_id": "1"
+}
+
+### Test created route
+GET {{$dotenv BASE_URL}}/anything/get?foo=bar&baz=qux
+Host: example.com
+
+## Protecting api
+
+### Create a new Route
+
+PUT {{$dotenv APISIX_ADMIN_URL}}/apisix/admin/routes/2 HTTP/1.1
+X-Api-Key: {{$dotenv APISIX_ADMIN_API_KEY}}
+Content-Type: application/json
+
+{
+  "uri": "/index.html",
+  "plugins": {
+    "limit-count": {
+      "count": 2,
+      "time_window": 60,
+      "rejected_code": 503,
+      "key_type": "var",
+      "key": "remote_addr"
+    }
+  },
+  "upstream_id": "1"
+}
+
+### Test create route
+GET {{$dotenv BASE_URL}}/index.html HTTP/1.1
+
+
+# Observability
+
+## Logs
+
+### Create a new route using the http-logger plugin
+PUT {{$dotenv APISIX_ADMIN_URL}}/apisix/admin/routes/3 HTTP/1.1
+X-Api-Key: {{$dotenv APISIX_ADMIN_API_KEY}}
+Content-Type: application/json
+
+{
+  "plugins": {
+    "http-logger": {
+      "uri": "https://30465e8b3fc641df84221c2e41c16581.api.mockbin.io/"
+    }
+  },
+  "upstream_id": "1",
+  "uri": "/get"
+}
+
+### Test logging
+GET {{$dotenv BASE_URL}}/get?sample=hummm HTTP/1.1
+
+
+
+## Metrics
+
+### Update the previous route to use the prometheus plugin
+PATCH {{$dotenv APISIX_ADMIN_URL}}/apisix/admin/routes/3 HTTP/1.1
+X-Api-Key: {{$dotenv APISIX_ADMIN_API_KEY}}
+Content-Type: application/json
+
+{
+  "plugins": {
+    "prometheus": {}
+  }
+}
+
+### Fetch metric data
+GET http://mypi.local:9091/apisix/prometheus/metrics HTTP/1.1
