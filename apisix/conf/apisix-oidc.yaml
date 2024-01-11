@@ -1,4 +1,12 @@
 routes:
+  - uri: /auth/*
+    upstream:
+      nodes:
+        "keycloak:9009": 1
+    plugins:
+      proxy-rewrite:
+        regex_uri: ["^/auth/(.*)", "/$1"]
+
   - uri: /*
     upstream:
       nodes:
@@ -8,7 +16,7 @@ routes:
         client_id: ${{OIDC_CLIENTID}}
         client_secret: ${{OIDC_SECRET}}
         discovery: ${{OIDC_ISSUER}}/.well-known/openid-configuration
-        redirect_uri: http://localhost:9080/callback
+        redirect_uri: ${{REDIRECT_URI}}
         bearer_only: false
         scope: openid
         session:
