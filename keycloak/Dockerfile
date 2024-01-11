@@ -1,9 +1,3 @@
-# FROM quay.io/keycloak/keycloak:22.0.5
-
-# COPY ./conf/keycloak.json /opt/keycloak/data/import/keycloak.json
-
-# ENTRYPOINT [ "/bin/sh", "-c", "/opt/keycloak/bin/kc.sh import --file /opt/keycloak/data/import/keycloak.json --override true && /opt/keycloak/bin/kc.sh start-dev --http-port 9009" ]
-
 FROM quay.io/keycloak/keycloak:22.0.5 as builder
 COPY ./conf/keycloak.json /opt/keycloak/data/import/keycloak.json
 RUN /opt/keycloak/bin/kc.sh import --file /opt/keycloak/data/import/keycloak.json --override true
@@ -11,4 +5,5 @@ RUN /opt/keycloak/bin/kc.sh import --file /opt/keycloak/data/import/keycloak.jso
 FROM quay.io/keycloak/keycloak:22.0.5
 COPY --from=builder /opt/keycloak/ /opt/keycloak/
 WORKDIR /opt/keycloak
-ENTRYPOINT ["/opt/keycloak/bin/kc.sh", "start-dev", "--http-port 9009", "--hostname-url=http://mypi.local:9080/auth/", "--hostname-admin-url=http://mypi.local:9080/auth/", "--hostname-strict-backchannel=true"]
+ENTRYPOINT ["/opt/keycloak/bin/kc.sh", "start-dev", "--http-port 9009"]
+# ENTRYPOINT ["/opt/keycloak/bin/kc.sh", "start-dev", "--http-port 9009", "--hostname-url=http://mypi.local:9080/auth/", "--hostname-admin-url=http://mypi.local:9080/auth/", "--hostname-strict-backchannel=true"]
