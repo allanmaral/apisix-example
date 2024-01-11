@@ -7,10 +7,13 @@ services:
     environment:
       OIDC_CLIENTID: apisix
       OIDC_SECRET: rjoVkMUDpUH4TE7IXhhJuof4O7OFrbph
-      OIDC_ISSUER: http://keycloak.localhost:9009/realms/apisix
+      OIDC_ISSUER: http://mypi.local:9080/auth/realms/apisix
+      REDIRECT_URI: http://mypi.local:9080/callback
       SESSION_SECRET: idontknowwhattop
     ports:
       - "9080:9080"
+    extra_hosts:
+      mypi.local: 127.0.0.1
 
   keycloak:
     container_name: keycloak
@@ -22,7 +25,7 @@ services:
       - "9009:9009"
     networks:
       default:
-        aliases: [keycloak.localhost]
+        aliases: [mypi.local]
 
   web:
     container_name: web
