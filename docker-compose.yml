@@ -14,6 +14,7 @@ services:
       - "9080:9080"
     extra_hosts:
       mypi.local: 127.0.0.1
+    restart: always
 
   keycloak:
     container_name: keycloak
@@ -26,6 +27,7 @@ services:
     networks:
       default:
         aliases: [mypi.local]
+    restart: always
 
   web:
     container_name: web
