@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { Pre } from "./Pre";
 
 const RequestResult: React.FC<{ path: string }> = async ({ path }) => {
-  const response = await fetch(`https://httpbin.org/anything/${path}`)
+  const response = await fetch(`http://mock/anything/${path}`)
     .then((response) => response.json())
     .then((response) => JSON.stringify(response, null, 2));
 

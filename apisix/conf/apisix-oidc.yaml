@@ -7,10 +7,21 @@ routes:
       proxy-rewrite:
         regex_uri: ["^/auth/(.*)", "/$1"]
 
+  - uri: /anything/*
+    upstream:
+      nodes:
+        "mock:80": 1
+    plugin_config_id: 1
+
   - uri: /*
     upstream:
       nodes:
         "web:3000": 1
+    plugin_config_id: 1
+
+plugin_configs:
+  - id: 1
+    desc: oidc
     plugins:
       openid-connect:
         client_id: ${{OIDC_CLIENTID}}

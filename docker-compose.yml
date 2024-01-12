@@ -35,3 +35,9 @@ services:
     ports:
       - "3000:3000"
     restart: always
+
+  mock:
+    container_name: mock
+    image: kong/httpbin:0.1.0
+    ports:
+      - "7080:80"

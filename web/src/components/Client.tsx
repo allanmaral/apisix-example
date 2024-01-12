@@ -10,7 +10,7 @@ const useRequest = (path: string) => {
 
   if (!requestStarted.current) {
     requestStarted.current = true;
-    fetch(`https://httpbin.org/anything/${path}`)
+    fetch(`/anything/${path}`)
       .then((response) => response.json())
       .then((response) => JSON.stringify(response, null, 2))
       .then(setData)
