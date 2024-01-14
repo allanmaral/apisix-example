@@ -1,48 +1,43 @@
-version: "3.7"
+version: "3"
 
 services:
   apisix:
     container_name: apisix
     build: ./apisix
-    networks:
-      - intranet
-    ports:
-      - "9180:9180"
-      - "9080:9080"
-      - "9091:9091"
-      - "9433:9433"
-      - "9092:9092"
-    depends_on:
-      - etcd
-    restart: always
-
-  etcd:
-    container_name: etcd
-    image: bitnami/etcd:3.5.10
     environment:
-      ALLOW_NONE_AUTHENTICATION: "yes"
-      ETCD_ADVERTISE_CLIENT_URLS: "http://etcd:2379"
-      ETCD_LISTEN_CLIENT_URLS: "http://0.0.0.0:2379"
-    volumes:
-      - etcd-data:/bitnami/etcd
-    networks:
-      - intranet
+      OIDC_CLIENTID: apisix
+      OIDC_SECRET: rjoVkMUDpUH4TE7IXhhJuof4O7OFrbph
+      OIDC_ISSUER: http://mypi.local:9080/auth/realms/apisix
+      REDIRECT_URI: http://mypi.local:9080/callback
+      SESSION_SECRET: idontknowwhattop
     ports:
-      - "2379:2379"
+      - "9080:9080"
+    extra_hosts:
+      mypi.local: 127.0.0.1
     restart: always
 
-  prometheus:
-    container_name: prometheus
-    build: ./prometheus
-    networks:
-      - intranet
+  keycloak:
+    container_name: keycloak
+    build: ./keycloak
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
     ports:
-      - "9090:9090"
+      - "9009:9009"
+    networks:
+      default:
+        aliases: [mypi.local]
     restart: always
 
-volumes:
-  etcd-data:
+  web:
+    container_name: web
+    build: ./web
+    ports:
+      - "3000:3000"
+    restart: always
 
-networks:
-  intranet:
-    driver: bridge
+  mock:
+    container_name: mock
+    image: kong/httpbin:0.1.0
+    ports:
+      - "7080:80"
