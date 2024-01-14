@@ -1,0 +1,35 @@
+routes:
+  - uri: /auth/*
+    upstream:
+      nodes:
+        "keycloak:9009": 1
+    plugins:
+      proxy-rewrite:
+        regex_uri: ["^/auth/(.*)", "/$1"]
+
+  - uri: /anything/*
+    upstream:
+      nodes:
+        "mock:80": 1
+    plugin_config_id: 1
+
+  - uri: /*
+    upstream:
+      nodes:
+        "web:3000": 1
+    plugin_config_id: 1
+
+plugin_configs:
+  - id: 1
+    desc: oidc
+    plugins:
+      openid-connect:
+        client_id: ${{OIDC_CLIENTID}}
+        client_secret: ${{OIDC_SECRET}}
+        discovery: ${{OIDC_ISSUER}}/.well-known/openid-configuration
+        redirect_uri: ${{REDIRECT_URI}}
+        bearer_only: false
+        scope: openid
+        session:
+          secret: ${{SESSION_SECRET}}
+#END
